@@ -23,6 +23,7 @@ set( linearAlgebra_headers
      solvers/PreconditionerBlockJacobi.hpp
      solvers/PreconditionerIdentity.hpp
      solvers/PreconditionerJacobi.hpp
+     solvers/PreconditionerNull.hpp
      solvers/SeparateComponentPreconditioner.hpp
      utilities/Arnoldi.hpp
      utilities/BlockOperator.hpp
@@ -110,10 +111,10 @@ if( ENABLE_HYPRE )
           interfaces/hypre/mgrStrategies/Hydrofracture.hpp
           interfaces/hypre/mgrStrategies/LagrangianContactMechanics.hpp      
           interfaces/hypre/mgrStrategies/MultiphasePoromechanics.hpp
-          interfaces/hypre/mgrStrategies/MultiphasePoromechanicsReservoirFVM.hpp	  
+          interfaces/hypre/mgrStrategies/MultiphasePoromechanicsReservoirFVM.hpp
           interfaces/hypre/mgrStrategies/SinglePhaseHybridFVM.hpp
           interfaces/hypre/mgrStrategies/SinglePhasePoromechanics.hpp
-          interfaces/hypre/mgrStrategies/SinglePhasePoromechanicsReservoirFVM.hpp	  
+          interfaces/hypre/mgrStrategies/SinglePhasePoromechanicsReservoirFVM.hpp
           interfaces/hypre/mgrStrategies/SinglePhaseReservoirFVM.hpp
           interfaces/hypre/mgrStrategies/SinglePhaseReservoirHybridFVM.hpp
         )
@@ -165,6 +166,11 @@ endif()
 
 if( ENABLE_CUDA_NVTOOLSEXT )
   set( dependencyList ${dependencyList} CUDA::nvToolsExt )
+endif()
+
+# We depend on METIS for multiscale coarsening
+if( ENABLE_METIS )
+    list( APPEND dependencyList metis )
 endif()
 
 blt_add_library( NAME       linearAlgebra
