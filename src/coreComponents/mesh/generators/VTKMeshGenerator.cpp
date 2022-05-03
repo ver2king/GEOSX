@@ -26,6 +26,7 @@
 #include "mesh/generators/CellBlockManager.hpp"
 #include "mesh/generators/VTKMeshGeneratorTools.hpp"
 #include "mesh/mpiCommunications/CommunicationTools.hpp"
+#include "mesh/mpiCommunications/SpatialPartition.hpp"
 
 namespace geosx
 {
@@ -36,10 +37,14 @@ VTKMeshGenerator::VTKMeshGenerator( string const & name,
                                     Group * const parent )
   : ExternalMeshGeneratorBase( name, parent )
 {
-  registerWrapper( viewKeyStruct::regionAttributeString(), &m_attributeName ).
+  registerWrapper( viewKeyStruct::regionAttributeString(), &m_regionAttributeName ).
     setInputFlag( InputFlags::OPTIONAL ).
     setApplyDefaultValue( "attribute" ).
     setDescription( "Name of the VTK cell attribute to use as region marker" );
+
+  registerWrapper( viewKeyStruct::structuredIndexAttributeString(), &m_structuredIndexAttributeName ).
+    setInputFlag( InputFlags::OPTIONAL ).
+    setDescription( "Name of the VTK cell attribute containing structured cell index (e.g. Cartesian IJK)" );
 
   registerWrapper( viewKeyStruct::nodesetNamesString(), &m_nodesetNames ).
     setInputFlag( InputFlags::OPTIONAL ).
@@ -70,18 +75,30 @@ void VTKMeshGenerator::generateMesh( DomainPartition & domain )
   // TODO refactor void MeshGeneratorBase::generateMesh( DomainPartition & domain )
   GEOSX_MARK_FUNCTION;
 
-  MPI_Comm const comm = MPI_COMM_GEOSX;
   vtkSmartPointer< vtkMultiProcessController > controller = vtk::getController();
   vtkMultiProcessController::SetGlobalController( controller );
+
+  int const numPartZ = m_structuredIndexAttributeName.empty() ? 1 : [&domain]()
+  {
+    SpatialPartition const & partition =
+      dynamic_cast< SpatialPartition const & >( domain.getReference< PartitionBase >( keys::partitionManager ) );
+    return partition.m_Partitions[2];
+  }();
 
   GEOSX_LOG_RANK_0( GEOSX_FMT( "{} '{}': reading mesh from {}", catalogName(), getName(), m_filePath ) );
   {
     GEOSX_LOG_LEVEL_RANK_0( 2, "  reading the dataset..." );
     vtkSmartPointer< vtkDataSet > loadedMesh = vtk::loadMesh( m_filePath );
     GEOSX_LOG_LEVEL_RANK_0( 2, "  redistributing mesh..." );
-    m_vtkMesh = vtk::redistributeMesh( *loadedMesh, comm, m_partitionMethod, m_partitionRefinement, m_useGlobalIds );
+    m_vtkMesh = vtk::redistributeMesh( *loadedMesh,
+                                       MPI_COMM_GEOSX,
+                                       m_partitionMethod,
+                                       m_partitionRefinement,
+                                       m_useGlobalIds,
+                                       m_structuredIndexAttributeName,
+                                       numPartZ );
     GEOSX_LOG_LEVEL_RANK_0( 2, "  finding neighbor ranks..." );
-    std::vector< vtkBoundingBox > boxes = vtk::exchangeBoundingBoxes( *m_vtkMesh, comm );
+    std::vector< vtkBoundingBox > boxes = vtk::exchangeBoundingBoxes( *m_vtkMesh, MPI_COMM_GEOSX );
     std::vector< int > const neighbors = vtk::findNeighborRanks( std::move( boxes ) );
     domain.getMetisNeighborList().insert( neighbors.begin(), neighbors.end() );
     GEOSX_LOG_LEVEL_RANK_0( 2, "  done!" );
@@ -95,14 +112,14 @@ void VTKMeshGenerator::generateMesh( DomainPartition & domain )
   CellBlockManager & cellBlockManager = meshBody.registerGroup< CellBlockManager >( keys::cellManager );
 
   GEOSX_LOG_LEVEL_RANK_0( 2, "  preprocessing..." );
-  m_cellMap = vtk::buildCellMap( *m_vtkMesh, m_attributeName );
+  m_cellMap = vtk::buildCellMap( *m_vtkMesh, m_regionAttributeName );
 
   GEOSX_LOG_LEVEL_RANK_0( 2, "  writing nodes..." );
   real64 const globalLength = writeNodes( getLogLevel(), *m_vtkMesh, m_nodesetNames, cellBlockManager, this->m_translate, this->m_scale );
   meshBody.setGlobalLengthScale( globalLength );
 
   GEOSX_LOG_LEVEL_RANK_0( 2, "  writing cells..." );
-  writeCells( getLogLevel(), *m_vtkMesh, m_cellMap, cellBlockManager );
+  writeCells( getLogLevel(), *m_vtkMesh, m_cellMap, m_structuredIndexAttributeName, cellBlockManager );
 
   GEOSX_LOG_LEVEL_RANK_0( 2, "  writing surfaces..." );
   writeSurfaces( getLogLevel(), *m_vtkMesh, m_cellMap, cellBlockManager );
@@ -111,7 +128,7 @@ void VTKMeshGenerator::generateMesh( DomainPartition & domain )
   cellBlockManager.buildMaps();
 
   GEOSX_LOG_LEVEL_RANK_0( 2, "  done!" );
-  vtk::printMeshStatistics( *m_vtkMesh, m_cellMap, comm );
+  vtk::printMeshStatistics( *m_vtkMesh, m_cellMap, MPI_COMM_GEOSX );
 }
 
 void VTKMeshGenerator::importFields( DomainPartition & domain ) const
