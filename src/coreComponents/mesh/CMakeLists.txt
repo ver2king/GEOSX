@@ -36,12 +36,15 @@ set( mesh_headers
      generators/CellBlockManagerABC.hpp
      generators/CellBlockUtilities.hpp
      generators/ExternalMeshGeneratorBase.hpp
+     generators/FaceBlock.hpp
+     generators/FaceBlockABC.hpp
      generators/InternalMeshGenerator.hpp
      generators/InternalWellGenerator.hpp
      generators/InternalWellboreGenerator.hpp
      generators/MeshGeneratorBase.hpp
      generators/ParMETISInterface.hpp
      generators/PrismUtilities.hpp
+     generators/ToCellRelation.hpp
      mpiCommunications/CommID.hpp
      mpiCommunications/CommunicationTools.hpp
      mpiCommunications/MPI_iCommData.hpp
@@ -90,6 +93,7 @@ set( mesh_sources
      generators/CellBlockManager.cpp
      generators/CellBlockUtilities.cpp
      generators/ExternalMeshGeneratorBase.cpp
+     generators/FaceBlock.cpp
      generators/InternalMeshGenerator.cpp
      generators/InternalWellGenerator.cpp
      generators/InternalWellboreGenerator.cpp

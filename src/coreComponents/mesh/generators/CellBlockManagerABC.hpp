@@ -17,21 +17,12 @@
 
 #include "dataRepository/Group.hpp"
 
+#include "ToCellRelation.hpp"
+
 #include <map>
 
 namespace geosx
 {
-
-/**
- * @brief Container for maps from a mesh object (node, edge or face) to cells.
- * @tparam BASETYPE underlying map type
- */
-template< typename BASETYPE >
-struct ToCellRelation
-{
-  BASETYPE toBlockIndex; ///< Map containing a list of cell block indices for each object
-  BASETYPE toCellIndex;  ///< Map containing cell indices, same shape as above
-};
 
 /**
  * @brief Abstract base class for CellBlockManager.
