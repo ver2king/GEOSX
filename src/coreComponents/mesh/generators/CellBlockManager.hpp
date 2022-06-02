@@ -162,6 +162,8 @@ public:
     this->getGroup( viewKeyStruct::cellBlocks() ).forSubGroups< CellBlock >( lambda );
   }
 
+  FaceBlockABC const * getFaceZone( string const & name ) const override;
+
 private:
 
   struct viewKeyStruct

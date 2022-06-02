@@ -17,6 +17,7 @@
 
 #include "dataRepository/Group.hpp"
 
+#include "FaceBlockABC.hpp"
 #include "ToCellRelation.hpp"
 
 #include <map>
@@ -97,6 +98,16 @@ public:
    * @return Const reference to the Group instance.
    */
   virtual const Group & getCellBlocks() const = 0;
+
+  /**
+   * @brief Returns the FaceBlockABC associated with zone @p name.
+   * @param name The region name
+   * @return Pointer to const @p FaceBlockABC from which information will be extracted.
+   *
+   * It's for the moment assumed that one face region will contain one unique heterogeneous @p FaceBlockABC and
+   * not a collection of @p FaceBlockABC like we could do it for cells.
+   */
+  virtual const FaceBlockABC * getFaceZone( string const & name ) const = 0;
 
   /**
    * @brief Total number of nodes across all the cell blocks.

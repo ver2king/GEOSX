@@ -708,4 +708,9 @@ std::map< string, SortedArray< localIndex > > & CellBlockManager::getNodeSets()
   return m_nodeSets;
 }
 
+FaceBlockABC const * CellBlockManager::getFaceZone( string const & name ) const
+{
+  return 0;
+}
+
 }
