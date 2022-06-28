@@ -312,6 +312,8 @@ redistributeMesh( vtkUnstructuredGrid & loadedMesh,
   GEOSX_MARK_FUNCTION;
 
   // Generate global IDs for vertices and cells
+  // TODO Shift the points that are marked belonging to the field.
+  //      Do not forget to shift them back?!
   vtkNew< vtkGenerateGlobalIds > generator;
   generator->SetInputDataObject( &loadedMesh );
   generator->Update();
