@@ -39,6 +39,12 @@ public:
   ArrayOfArrays< localIndex > getFaceToEdges() const override;
 
   ToCellRelation< array2d< localIndex > > getFaceToElements() const override;
+
+public: // TODO private: replace with real setters
+  localIndex m_numFaces;
+  ArrayOfArrays< localIndex > m_faceToNodes;
+  ArrayOfArrays< localIndex > m_faceToEdges;
+  ToCellRelation< array2d< localIndex > > m_faceToElements;
 };
 
 } // end of namespace geosx

@@ -376,4 +376,21 @@ localIndex EmbeddedSurfaceSubRegion::unpackUpDownMaps( buffer_unit_type const * 
   return unPackedSize;
 }
 
+//void EmbeddedSurfaceSubRegion::copyFromCellBlock( FaceBlockABC const & faceBlock )
+//{
+//  // TODO
+//  this->resize( faceBlock.numFaces() );
+//
+//  this->m_toNodesRelation = faceBlock.getFaceToNodes();
+//  this->m_toEdgesRelation = faceBlock.getFaceToEdges();
+//  // TODO manipulate `faceBlock.getFaceToElements();` to feed `this->m_surfaceElementsToCells`.
+//  // Use `transformCellBlockToRegionMap` instead of the wrong code below.
+//  ToCellRelation< array2d< localIndex > > const & f2e = faceBlock.getFaceToElements();
+//  this->m_surfaceElementsToCells.m_toElementIndex = f2e.toCellIndex;
+//  this->m_surfaceElementsToCells.m_toElementSubRegion = f2e.toBlockIndex;
+//  this->m_surfaceElementsToCells.m_toElementRegion.setValues<serialPolicy>(0);
+//
+//  // TODO what about the external fields?
+//}
+
 } /* namespace geosx */

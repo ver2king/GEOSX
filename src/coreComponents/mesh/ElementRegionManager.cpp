@@ -118,9 +118,16 @@ void ElementRegionManager::setSchemaDeviations( xmlWrapper::xmlNode schemaRoot,
 
 void ElementRegionManager::generateMesh( CellBlockManagerABC & cellBlockManager )
 {
-  this->forElementRegions< CellElementRegion, SurfaceElementRegion >( [&]( auto & elemRegion )
+  this->forElementRegions< CellElementRegion >( [&]( CellElementRegion & elemRegion )
   {
     elemRegion.generateMesh( cellBlockManager.getCellBlocks() );
+  } );
+
+  this->forElementRegions< SurfaceElementRegion >( [&]( SurfaceElementRegion & elemRegion )
+  {
+    FaceBlockABC const * faceBlock = cellBlockManager.getFaceZone( elemRegion.getName() );
+    elemRegion.generateMesh( cellBlockManager.getCellBlocks() );
+    elemRegion.generateMesh( faceBlock );
   } );
 }
 
@@ -213,9 +220,10 @@ void ElementRegionManager::buildSets( NodeManager const & nodeManager )
       SortedArray< localIndex > & targetSet = elementSets.registerWrapper< SortedArray< localIndex > >( setName ).reference();
       for( localIndex k = 0; k < subRegion.size(); ++k )
       {
-        localIndex const numNodes = subRegion.numNodesPerElement( k );
+//        localIndex const numNodes = subRegion.numNodesPerElement( k ); // numNodes == 8 but the size is 4...
 
         localIndex elementInSet = true;
+        localIndex const numNodes = elemToNodeMap[k].size();
         for( localIndex i = 0; i < numNodes; ++i )
         {
           if( !nodeInCurSet( elemToNodeMap[k][i] ) )

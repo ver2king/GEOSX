@@ -15,7 +15,7 @@
   </Solvers>
 
   <Events
-    maxTime="2.0">
+    maxTime="1000.0">
     <!-- This event is applied every cycle, and overrides the
     solver time-step request -->
     <PeriodicEvent
@@ -26,16 +26,16 @@
     <!-- This event is applied every 1.0s.  The targetExactTimestep
     flag allows this event to request a dt modification to match an
     integer multiple of the timeFrequency. -->
-    <PeriodicEvent
-      name="outputs"
-      timeFrequency="1.0"
-      target="/Outputs/vtkOutput"/>
+<!--    <PeriodicEvent-->
+<!--      name="outputs"-->
+<!--      timeFrequency="1.0"-->
+<!--      target="/Outputs/vtkOutput"/>-->
 
-    <PeriodicEvent
-      name="restarts"
-      timeFrequency="1.0"
-      targetExactTimestep="0"
-      target="/Outputs/restartOutput"/>
+<!--    <PeriodicEvent-->
+<!--      name="restarts"-->
+<!--      timeFrequency="1.0"-->
+<!--      targetExactTimestep="0"-->
+<!--      target="/Outputs/restartOutput"/>-->
   </Events>
 
   <Constitutive>

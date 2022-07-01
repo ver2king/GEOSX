@@ -29,6 +29,7 @@
 #include "discretizationMethods/NumericalMethodsManager.hpp"
 #include "events/tasks/TasksManager.hpp"
 #include "events/EventManager.hpp"
+#include "finiteVolume/FluxApproximationBase.hpp"
 #include "finiteElement/FiniteElementDiscretization.hpp"
 #include "finiteElement/FiniteElementDiscretizationManager.hpp"
 #include "fieldSpecification/FieldSpecificationManager.hpp"
@@ -144,6 +145,47 @@ ProblemManager::~ProblemManager()
 Group * ProblemManager::createChild( string const & GEOSX_UNUSED_PARAM( childKey ), string const & GEOSX_UNUSED_PARAM( childName ) )
 { return nullptr; }
 
+void ProblemManager::saveMe()
+{
+  DomainPartition & domain = getDomainPartition();
+  Group & meshBodies = domain.getMeshBodies();
+
+  {
+    NumericalMethodsManager const & numericalMethodManager = getGroup< NumericalMethodsManager >( groupKeys.numericalMethodsManager.key() );
+
+    for( localIndex solverIndex = 0; solverIndex < m_physicsSolverManager->numSubGroups(); ++solverIndex )
+    {
+      SolverBase const * const solver = m_physicsSolverManager->getGroupPointer< SolverBase >( solverIndex );
+
+      if( solver != nullptr )
+      {
+        FiniteVolumeManager const & fvManager = numericalMethodManager.getFiniteVolumeManager();
+
+        solver->forMeshTargets( meshBodies,
+                                [&]( string const & meshBodyName,
+                                     MeshLevel & meshLevel,
+                                     auto const & regionNames )
+                                {
+                                  NodeManager & nodeManager = meshLevel.getNodeManager();
+                                  ElementRegionManager & elemManager = meshLevel.getElemManager();
+                                  FaceManager const & faceManager = meshLevel.getFaceManager();
+                                  EdgeManager const & edgeManager = meshLevel.getEdgeManager();
+                                  arrayView2d< real64 const, nodes::REFERENCE_POSITION_USD > const & X = nodeManager.referencePosition();
+
+                                  for( localIndex a = 0; a < fvManager.numSubGroups(); ++a )
+                                  {
+                                    FluxApproximationBase const * const fluxApprox = fvManager.getGroupPointer< FluxApproximationBase >( a );
+                                    if( fluxApprox != nullptr )
+                                    {
+                                      fluxApprox->addToFractureStencil( meshLevel, "Fracture", false );
+                                      // edgeManager.m_recalculateFractureConnectorEdges.clear();
+                                    }
+                                  }
+                                } );
+      }
+    }
+  }
+}
 
 void ProblemManager::problemSetup()
 {
@@ -161,6 +203,8 @@ void ProblemManager::problemSetup()
   initialize();
 
   importFields();
+
+  saveMe();
 }
 
 
@@ -684,6 +728,8 @@ map< std::tuple< string, string, string >, localIndex > ProblemManager::calculat
     {
       string const discretizationName = solver->getDiscretizationName();
 
+//      FiniteVolumeManager const & fvManager = numericalMethodManager.getFiniteVolumeManager();
+
       FiniteElementDiscretizationManager const &
       feDiscretizationManager = numericalMethodManager.getFiniteElementDiscretizationManager();
 
@@ -700,6 +746,16 @@ map< std::tuple< string, string, string >, localIndex > ProblemManager::calculat
         FaceManager const & faceManager = meshLevel.getFaceManager();
         EdgeManager const & edgeManager = meshLevel.getEdgeManager();
         arrayView2d< real64 const, nodes::REFERENCE_POSITION_USD > const & X = nodeManager.referencePosition();
+
+//        for( localIndex a = 0; a < fvManager.numSubGroups(); ++a )
+//        {
+//          FluxApproximationBase const * const fluxApprox = fvManager.getGroupPointer< FluxApproximationBase >( a );
+//          if( fluxApprox!=nullptr )
+//          {
+//            fluxApprox->addToFractureStencil( meshLevel, "fracture", false );
+////            edgeManager.m_recalculateFractureConnectorEdges.clear();
+//          }
+//        }
 
         for( auto const & regionName : regionNames )
         {

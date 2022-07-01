@@ -659,7 +659,7 @@ int SurfaceGenerator::separationDriver( DomainPartition & domain,
     elementManager.forElementSubRegions< FaceElementSubRegion >( [&]( FaceElementSubRegion & subRegion )
     {
       FaceElementSubRegion::NodeMapType & nodeMap = subRegion.nodeList();
-      FaceElementSubRegion::FaceMapType & faceMap = subRegion.faceList();
+      FaceElementSubRegion::FaceMapType const & faceMap = subRegion.faceList();
 
       for( localIndex kfe=0; kfe<subRegion.size(); ++kfe )
       {

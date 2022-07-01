@@ -38,7 +38,8 @@ FaceElementSubRegion::FaceElementSubRegion( string const & name,
   m_newFaceElements(),
   m_toFacesRelation()
 {
-  m_elementType = ElementType::Hexahedron;
+//  m_elementType = ElementType::Hexahedron;
+  m_elementType = ElementType::Quadrilateral;
 
   registerWrapper( viewKeyStruct::dNdXString(), &m_dNdX ).setSizedFromParent( 1 ).reference().resizeDimension< 3 >( 3 );
 
@@ -59,7 +60,7 @@ FaceElementSubRegion::FaceElementSubRegion( string const & name,
 
   m_surfaceElementsToCells.resize( 0, 2 );
 
-  m_numNodesPerElement = 8;
+  m_numNodesPerElement = 4;
 }
 
 void FaceElementSubRegion::setupRelatedObjectsInRelations( MeshLevel const & mesh )
@@ -67,6 +68,23 @@ void FaceElementSubRegion::setupRelatedObjectsInRelations( MeshLevel const & mes
   this->m_toNodesRelation.setRelatedObject( mesh.getNodeManager() );
   this->m_toEdgesRelation.setRelatedObject( mesh.getEdgeManager() );
   this->m_toFacesRelation.setRelatedObject( mesh.getFaceManager() );
+}
+
+void FaceElementSubRegion::copyFromCellBlock( FaceBlockABC const & faceBlock )
+{
+  // TODO
+  this->resize( faceBlock.numFaces() );
+
+  this->m_toNodesRelation = faceBlock.getFaceToNodes();
+  this->m_toEdgesRelation = faceBlock.getFaceToEdges();
+  // TODO manipulate `faceBlock.getFaceToElements();` to feed `this->m_surfaceElementsToCells`.
+  // Use `transformCellBlockToRegionMap` instead of the wrong code below.
+  ToCellRelation< array2d< localIndex > > const & f2e = faceBlock.getFaceToElements();
+  this->m_surfaceElementsToCells.m_toElementIndex = f2e.toCellIndex;
+  this->m_surfaceElementsToCells.m_toElementSubRegion = f2e.toBlockIndex;
+  this->m_surfaceElementsToCells.m_toElementRegion.setValues<serialPolicy>(0);
+
+  // TODO what about the external fields?
 }
 
 void FaceElementSubRegion::calculateSingleElementGeometricQuantities( localIndex const k,

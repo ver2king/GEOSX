@@ -78,6 +78,14 @@ public:
   ///@}
 
   /**
+   * @brief Copies the geometrical information.
+   * @param faceBlock The source.
+   * @warning The current architecture of @p FaceElementSubRegion would impose it to be heterogeneous,
+   * but it's used implicitly as an heterogeneous sub region. While @p FaceBlockABC is explicitly heterogeneous.
+   */
+  void copyFromCellBlock( FaceBlockABC const & faceBlock );
+
+  /**
    * @name Geometry computation / Connectivity
    */
   ///@{

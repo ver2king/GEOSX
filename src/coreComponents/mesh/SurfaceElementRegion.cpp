@@ -59,6 +59,18 @@ void SurfaceElementRegion::generateMesh( Group & cellBlocks )
   }
 }
 
+void SurfaceElementRegion::generateMesh( FaceBlockABC const * faceBlock )
+{
+  // TODO Imposing a `SurfaceSubRegionType::faceElement`
+
+  // For the moment it's assumed that we have one unique FaceBlock that defines a SurfaceElementRegion
+  Group & elementSubRegions = this->getGroup( viewKeyStruct::elementSubRegions() );
+
+  auto & subRegion = elementSubRegions.registerGroup< FaceElementSubRegion >( "faceElementSubRegion" );
+//  auto & subRegion = elementSubRegions.getGroup< EmbeddedSurfaceSubRegion >( "embeddedSurfaceSubRegion" );
+  subRegion.copyFromCellBlock( *faceBlock );
+}
+
 void SurfaceElementRegion::initializePreSubGroups()
 {
   this->forElementSubRegions< SurfaceElementSubRegion >( [&] ( SurfaceElementSubRegion & subRegion )

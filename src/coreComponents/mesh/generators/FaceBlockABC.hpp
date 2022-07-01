@@ -35,11 +35,11 @@ public:
 
   virtual localIndex numFaces() const = 0;
 
-  virtual ArrayOfArrays< localIndex > getFaceToNodes() const = 0;
+  virtual ArrayOfArrays< localIndex > getFaceToNodes() const = 0; // TODO getFaceToNodesLeft, getFaceToNodesRight
 
   virtual ArrayOfArrays< localIndex > getFaceToEdges() const = 0;
 
-  virtual ToCellRelation< array2d< localIndex > > getFaceToElements() const = 0;
+  virtual ToCellRelation< array2d< localIndex > > getFaceToElements() const = 0; // TODO and get face to face index of element?
 };
 
 } // end of namespace geosx

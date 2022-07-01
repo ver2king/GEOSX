@@ -148,6 +148,8 @@ public:
    */
   void problemSetup();
 
+  void saveMe();
+
   /**
    * @brief Run the events in the scheduler.
    * @return True iff the simulation exited early, and needs to be run again to completion.

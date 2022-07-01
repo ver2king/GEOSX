@@ -108,6 +108,8 @@ public:
 
   ///@}
 
+//  void copyFromCellBlock( FaceBlockABC const & faceBlock );
+
   /**
    * @name Geometry computation / Connectivity
    */

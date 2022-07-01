@@ -1061,7 +1061,8 @@ void VTKMeshGenerator::writeSurfaces( CellBlockManager & cellBlockManager ) cons
   {
     int const surfaceId = surfaceCells.first;
     std::vector< vtkIdType > const & cellIds = surfaceCells.second;
-    string const surfaceName = std::to_string( surfaceId );
+//    string const surfaceName = std::to_string( surfaceId );
+    string const surfaceName = "fracture";
     GEOSX_LOG_LEVEL_RANK_0( 1, "Importing surface " << surfaceName );
 
     // Get or create all surfaces (even those which are empty in this rank)

@@ -92,7 +92,7 @@ void TwoPointFluxApproximation::computeCellStencil( MeshLevel & mesh ) const
   arrayView2d< real64 const, nodes::REFERENCE_POSITION_USD > const & X = nodeManager.referencePosition();
 
   arrayView1d< real64 const > const & transMultiplier =
-    faceManager.getReference< array1d< real64 > >( m_coeffName + viewKeyStruct::transMultiplierString() );
+    faceManager.getReference< array1d< real64 > >( m_coeffName + viewKeyStruct::transMultiplierString() ); // It looks like there are some duplicated viewKeyStruct::transMultiplierString?
 
   ElementRegionManager::ElementViewAccessor< arrayView2d< real64 const > > const elemCenter =
     elemManager.constructArrayViewAccessor< real64, 2 >( CellElementSubRegion::viewKeyStruct::elementCenterString() );
@@ -237,6 +237,18 @@ void TwoPointFluxApproximation::addToFractureStencil( MeshLevel & mesh,
   localIndex const fractureRegionIndex = fractureRegion.getIndexInParent();
 
   FaceElementSubRegion & fractureSubRegion = fractureRegion.getSubRegion< FaceElementSubRegion >( "faceElementSubRegion" );
+  fractureSubRegion.m_newFaceElements.insert(0);
+  fractureSubRegion.m_newFaceElements.insert(1);
+  fractureSubRegion.m_newFaceElements.insert(2);
+  fractureSubRegion.m_newFaceElements.insert(3);
+  fractureSubRegion.m_newFaceElements.insert(4);
+  fractureSubRegion.m_newFaceElements.insert(5);
+  fractureSubRegion.m_newFaceElements.insert(6);
+  fractureSubRegion.m_newFaceElements.insert(7);
+  fractureSubRegion.m_newFaceElements.insert(8);
+  fractureSubRegion.m_newFaceElements.insert(9);
+
+//  auto & fractureSubRegion = fractureRegion.getSubRegion< EmbeddedSurfaceSubRegion >( "embeddedSurfaceSubRegion" );
   FaceElementSubRegion::FaceMapType const & faceMap = fractureSubRegion.faceList();
 
   arrayView1d< localIndex const > const & fractureConnectorsToEdges =
@@ -566,7 +578,7 @@ void TwoPointFluxApproximation::addToFractureStencil( MeshLevel & mesh,
       faceToCellStencil.reserve( faceToCellStencil.size() + faceElementsToCells.size() );
     }
 
-    forAll< serialPolicy >( newFaceElements.size(),
+    forAll< serialPolicy >( newFaceElements.size(), // TODO this is wrong, newFaceElements is empty, but we're not playing with new elements.
                             [ newFaceElements,
                               &faceElementsToCells,
                               &cellStencil,
@@ -647,6 +659,8 @@ void TwoPointFluxApproximation::addToFractureStencil( MeshLevel & mesh,
         }
       }
     } );
+
+    fractureSubRegion.m_newFaceElements.clear();
   }
 }
 

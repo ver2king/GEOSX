@@ -18,22 +18,22 @@ namespace geosx {
 
 localIndex FaceBlock::numFaces() const
 {
-  return 0;
+  return m_numFaces;
 }
 
 ArrayOfArrays< localIndex > FaceBlock::getFaceToNodes() const
 {
-  return geosx::ArrayOfArrays< localIndex >();
+  return m_faceToNodes;
 }
 
 ArrayOfArrays< localIndex > FaceBlock::getFaceToEdges() const
 {
-  return geosx::ArrayOfArrays< localIndex >();
+  return m_faceToEdges;
 }
 
-ToCellRelation< array2d< localIndex>> FaceBlock::getFaceToElements() const
+ToCellRelation< array2d< localIndex > > FaceBlock::getFaceToElements() const
 {
-  return ToCellRelation< array2d< localIndex>>();
+  return m_faceToElements;
 }
 
 }

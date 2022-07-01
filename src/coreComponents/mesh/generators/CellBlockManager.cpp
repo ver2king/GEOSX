@@ -13,6 +13,7 @@
  */
 
 #include "CellBlockManager.hpp"
+#include "FaceBlock.hpp"
 
 #include "mesh/generators/CellBlockUtilities.hpp"
 #include "mesh/utilities/MeshMapUtilities.hpp"
@@ -23,11 +24,58 @@ namespace geosx
 {
 using namespace dataRepository;
 
+array1d< localIndex > convert( std::vector< localIndex > const & v )
+{
+  array1d< localIndex > res( v.size() );
+  std::copy( v.cbegin(), v.cend(), res.begin() );
+  return res;
+}
+
+ArrayOfArrays< localIndex > convert( std::vector< std::vector< localIndex > > const & vv )
+{
+  ArrayOfArrays< localIndex > res;
+  for( auto const & v: vv )
+  {
+    res.appendArray( v.cbegin(), v.cend() );
+  }
+  return res;
+}
+
 CellBlockManager::CellBlockManager( string const & name, Group * const parent ):
   CellBlockManagerABC( name, parent ),
   m_nodesPositions( 0, 3 )
 {
   this->registerGroup< Group >( viewKeyStruct::cellBlocks() );
+
+  // TODO
+  FaceBlock & faceBlock = this->registerGroup< FaceBlock >( "Fracture" );
+
+  faceBlock.m_numFaces = 10;
+  std::vector< std::vector< localIndex > > faceToNodes;
+  for( localIndex i = 0; i < 10; ++i )
+  {
+    std::vector< localIndex > tmp{ 5 + i * 12, 5 + ( i + 1 ) * 12, 5 + ( i + 1 ) * 12 + 132, 5 + i * 12 + 132 };
+    faceToNodes.push_back( tmp );
+  }
+
+  faceBlock.m_faceToNodes = convert( faceToNodes );
+
+  array2d< localIndex > f2e(10, 2);
+  array2d< localIndex > f2r(10, 2);
+  for( localIndex i = 0; i < 10; ++i )
+  {
+    f2e(i, 0) = 4 + i * 10;
+    f2e(i, 1) = 4 + 1 + i * 10;
+    f2r(i, 0) = 0;
+    f2r(i, 1) = 0;
+  }
+
+  ToCellRelation< array2d< localIndex > > tmp;
+  tmp.toCellIndex = f2e;
+  tmp.toBlockIndex = f2r;
+
+  faceBlock.m_faceToElements = tmp;
+
 }
 
 void CellBlockManager::resize( integer_array const & numElements,
@@ -710,7 +758,8 @@ std::map< string, SortedArray< localIndex > > & CellBlockManager::getNodeSets()
 
 FaceBlockABC const * CellBlockManager::getFaceZone( string const & name ) const
 {
-  return 0;
+  // TODO
+  return this->getGroupPointer< FaceBlockABC >( name );
 }
 
 }

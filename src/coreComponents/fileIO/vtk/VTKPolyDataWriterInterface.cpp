@@ -789,6 +789,14 @@ void VTKPolyDataWriterInterface::writeSurfaceElementRegions( real64 const time,
       {
         ug->SetCells( VTK_WEDGE, VTKSurface.second );
       }
+      else if( subRegion.numNodesPerElement() == 3 )
+      {
+        ug->SetCells( VTK_TRIANGLE, VTKSurface.second );
+      }
+      else if( subRegion.numNodesPerElement() == 4 )
+      {
+        ug->SetCells( VTK_QUAD, VTKSurface.second );
+      }
       else
       {
         GEOSX_ERROR( "Elements with " << subRegion.numNodesPerElement() << " nodes can't be output "
