@@ -38,8 +38,8 @@ FaceElementSubRegion::FaceElementSubRegion( string const & name,
   m_newFaceElements(),
   m_toFacesRelation()
 {
-//  m_elementType = ElementType::Hexahedron;
-  m_elementType = ElementType::Quadrilateral;
+  m_elementType = ElementType::Hexahedron;
+//  m_elementType = ElementType::Quadrilateral;
 
   registerWrapper( viewKeyStruct::dNdXString(), &m_dNdX ).setSizedFromParent( 1 ).reference().resizeDimension< 3 >( 3 );
 
@@ -60,7 +60,7 @@ FaceElementSubRegion::FaceElementSubRegion( string const & name,
 
   m_surfaceElementsToCells.resize( 0, 2 );
 
-  m_numNodesPerElement = 4;
+  m_numNodesPerElement = 8;
 }
 
 void FaceElementSubRegion::setupRelatedObjectsInRelations( MeshLevel const & mesh )
