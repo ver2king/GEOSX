@@ -585,7 +585,7 @@ if(DEFINED HYPRE_DIR AND ENABLE_HYPRE)
 
 
     # Prepend Hypre to link flags, fix for Umpire appearing before Hypre on the link line
-    if (NOT CMAKE_HOST_APPLE)
+    if (NOT CMAKE_HOST_APPLE AND EXISTS "${HYPRE_DIR}/lib/libHYPRE.a")
       blt_add_target_link_flags (TO hypre FLAGS "-Wl,--whole-archive ${HYPRE_DIR}/lib/libHYPRE.a -Wl,--no-whole-archive")
     endif()
 
