@@ -178,7 +178,7 @@ public:
     GEOSX_UNUSED_VAR( stack );
     return calcN( q, N );
   }
-  
+
   /**
    * @brief Calculate the shape functions derivatives wrt the physical
    *   coordinates.
@@ -206,6 +206,7 @@ public:
                                              real64 const (&X)[numNodes][3] );
 
   /**
+     <<<<<<< HEAD
    * @brief Empty method, here for compatibility with methods that require a stabilization of the
    * grad-grad bilinear form.
    * @tparam NUMDOFSPERTRIALSUPPORTPOINT Number of degrees of freedom for each support point.
@@ -218,7 +219,7 @@ public:
   GEOSX_HOST_DEVICE
   GEOSX_FORCE_INLINE
   static void addGradGradStabilization( StackVariables const & stack,
-                                        real64 ( &matrix )
+                                        real64 ( & matrix )
                                         [maxSupportPoints * NUMDOFSPERTRIALSUPPORTPOINT]
                                         [maxSupportPoints * NUMDOFSPERTRIALSUPPORTPOINT],
                                         real64 const & scaleFactor )
@@ -242,11 +243,13 @@ public:
   GEOSX_FORCE_INLINE
   static void addEvaluatedGradGradStabilization( StackVariables const & stack,
                                                  real64 const ( &dofs )[maxSupportPoints][NUMDOFSPERTRIALSUPPORTPOINT],
-                                                 real64 ( &targetVector )[maxSupportPoints][NUMDOFSPERTRIALSUPPORTPOINT],
+                                                 real64 ( & targetVector )[maxSupportPoints][NUMDOFSPERTRIALSUPPORTPOINT],
                                                  real64 const scaleFactor )
   { GEOSX_UNUSED_VAR( stack, dofs, targetVector, scaleFactor ); }
-  
+
   /**
+     =======
+     >>>>>>> feature/hamon/initializationContinued
    * @brief Calculates the isoparametric "Jacobian" transformation
    *   matrix/mapping from the parent space to the physical space.
    * @param q The quadrature point index in 3d space.

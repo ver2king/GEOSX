@@ -80,7 +80,7 @@ public:
   using Base::m_constitutiveUpdate;
   using Base::m_finiteElementSpace;
   using Base::m_meshData;
-  
+
   /**
    * @brief Constructor
    * @copydoc geosx::finiteElement::ImplicitKernelBase::ImplicitKernelBase
@@ -143,7 +143,6 @@ public:
 
       m_fluidPhaseMassDensity = fluid.phaseMassDensity();
       m_dFluidPhaseMassDensity = fluid.dPhaseMassDensity();
-      m_initialFluidTotalMassDensity = fluid.initialTotalMassDensity();
 
     }
 
@@ -151,7 +150,6 @@ public:
     {
       using namespace extrinsicMeshData::flow;
 
-      m_initialFluidPressure = elementSubRegion.template getExtrinsicData< initialPressure >();
       m_fluidPressure_n = elementSubRegion.template getExtrinsicData< pressure_n >();
       m_fluidPressure = elementSubRegion.template getExtrinsicData< pressure >();
 
@@ -273,7 +271,7 @@ public:
     {
       stack.localComponentDofIndices[flowDofIndex] = stack.localPressureDofIndex[0] + flowDofIndex + 1;
     }
-    
+
     // Add stabilization to block diagonal parts of the local dResidualMomentum_dDisplacement (this
     // is a no-operation with FEM classes)
     real64 const stabilizationScaling = computeStabilizationScaling( k );
@@ -338,14 +336,12 @@ public:
                                                       q,
                                                       NP,
                                                       NC,
-                                                      m_initialFluidPressure[k],
                                                       m_fluidPressure_n[k],
                                                       m_fluidPressure[k],
                                                       strainIncrement,
                                                       m_gravityAcceleration,
                                                       m_gravityVector,
                                                       m_solidDensity( k, q ),
-                                                      m_initialFluidTotalMassDensity( k, q ),
                                                       m_fluidPhaseDensity[k][q],
                                                       m_fluidPhaseDensity_n[k][q],
                                                       m_dFluidPhaseDensity[k][q],
@@ -559,7 +555,7 @@ public:
       m_finiteElementSpace.template numSupportPoints< FE_TYPE >( stack.feStack );
     int nUDof = numSupportPoints * numDofPerTestSupportPoint;
     constexpr int nMaxUDof = FE_TYPE::maxSupportPoints * numDofPerTestSupportPoint;
-    
+
     // Apply equation/variable change transformation(s)
     real64 work[nMaxUDof > ( numMaxComponents + 1 ) ? nMaxUDof : numMaxComponents + 1];
     shiftRowsAheadByOneAndReplaceFirstRowWithColumnSum( m_numComponents, nUDof, stack.dLocalResidualMass_dDisplacement, work );
@@ -567,7 +563,7 @@ public:
     shiftRowsAheadByOneAndReplaceFirstRowWithColumnSum( m_numComponents, m_numComponents, stack.dLocalResidualMass_dComponents, work );
     shiftElementsAheadByOneAndReplaceFirstElementWithSum( m_numComponents, stack.localResidualMass );
 
-    for( int localNode = 0; localNode < numSupportPoints; ++localNode )    
+    for( int localNode = 0; localNode < numSupportPoints; ++localNode )
     {
       for( int dim = 0; dim < numDofPerTestSupportPoint; ++dim )
       {
@@ -659,8 +655,6 @@ protected:
   arrayView3d< real64 const, constitutive::multifluid::USD_PHASE > m_fluidPhaseMassDensity;
   arrayView4d< real64 const, constitutive::multifluid::USD_PHASE_DC > m_dFluidPhaseMassDensity;
 
-  arrayView2d< real64 const, constitutive::multifluid::USD_FLUID > m_initialFluidTotalMassDensity;
-
   arrayView2d< real64 const, compflow::USD_PHASE > m_fluidPhaseSaturation;
   arrayView2d< real64 const, compflow::USD_PHASE > m_fluidPhaseSaturation_n;
   arrayView3d< real64 const, compflow::USD_PHASE_DC > m_dFluidPhaseSaturation;
@@ -669,9 +663,6 @@ protected:
 
   /// The global degree of freedom number
   arrayView1d< globalIndex const > m_flowDofNumber;
-
-  /// The rank-global initial fluid pressure array.
-  arrayView1d< real64 const > m_initialFluidPressure;
 
   /// The rank-global fluid pressure arrays.
   arrayView1d< real64 const > m_fluidPressure_n;
@@ -682,7 +673,7 @@ protected:
 
   /// Number of phases
   localIndex const m_numPhases;
-  
+
   /**
    * @brief Get a parameter representative of the stiffness, used as physical scaling for the
    * stabilization matrix.
@@ -696,7 +687,7 @@ protected:
     // TODO: generalize this to other constitutive models (currently we assume linear elasticity).
     return 2.0 * m_constitutiveUpdate.getShearModulus( k );
   }
-  
+
 };
 
 using MultiphaseKernelFactory = finiteElement::KernelFactory< Multiphase,

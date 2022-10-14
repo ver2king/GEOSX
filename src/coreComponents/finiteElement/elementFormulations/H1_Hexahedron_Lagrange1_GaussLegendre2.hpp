@@ -444,26 +444,6 @@ private:
 
 /// @cond Doxygen_Suppress
 
-
-// template< typename SUBREGION_TYPE >
-// GEOSX_FORCE_INLINE
-// void H1_Hexahedron_Lagrange1_GaussLegendre2::
-//   fillMeshData( NodeManager const & GEOSX_UNUSED_PARAM( nodeManager ),
-//                 EdgeManager const & GEOSX_UNUSED_PARAM( edgeManager ),
-//                 FaceManager const & GEOSX_UNUSED_PARAM( faceManager ),
-//                 SUBREGION_TYPE const & GEOSX_UNUSED_PARAM( cellSubRegion ),
-//                 MeshData< SUBREGION_TYPE > & GEOSX_UNUSED_PARAM( meshData ) )
-// {}
-
-// template< typename SUBREGION_TYPE >
-// GEOSX_HOST_DEVICE
-// GEOSX_FORCE_INLINE
-// void H1_Hexahedron_Lagrange1_GaussLegendre2::
-//   setupStack( localIndex const & GEOSX_UNUSED_PARAM( cellIndex ),
-//               MeshData< SUBREGION_TYPE > const & GEOSX_UNUSED_PARAM( meshData ),
-//               StackVariables & GEOSX_UNUSED_PARAM( stack ) )
-// {}
-
 template< localIndex NUMDOFSPERTRIALSUPPORTPOINT, bool UPPER >
 GEOSX_HOST_DEVICE
 GEOSX_FORCE_INLINE
