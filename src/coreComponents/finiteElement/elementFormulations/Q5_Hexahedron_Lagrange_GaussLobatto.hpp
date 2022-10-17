@@ -98,6 +98,8 @@ public:
 
   /// The number of nodes/support points per element.
   constexpr static localIndex numNodes = LagrangeBasis5GL::TensorProduct3D::numSupportPoints;
+  /// The maximum number of support points per element.
+  constexpr static localIndex maxSupportPoints = numNodes;
 
   /// The number of quadrature points per element.
   constexpr static localIndex numQuadraturePoints = 216;
