@@ -239,7 +239,7 @@ jobs:
     name: Pangea 2 (centos 7.6, gcc 8.3.0, open-mpi 2.1.5, mkl 2019.3)
     <<: *__geosx_auto_deploy
     env:
-    - DOCKER_REPOSITORY=geosx/pangea2-gcc8.3.0-openmpi2.1.5-mkl2019.3
+    - DOCKER_REPOSITORY=geosx/pangea2-gcc8.3.0-openmpi4.0.3-mkl2019.3
     - CMAKE_BUILD_TYPE=Release
     - GCP_BUCKET=geosx/Pangea2
     - ENABLE_HYPRE=ON
