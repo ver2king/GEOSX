@@ -595,52 +595,52 @@ void InternalMeshGenerator::generateMesh( DomainPartition & domain )
 
   // Find elemCenters for even uniform element sizes
   array1d< array1d< real64 > > elemCenterCoords( 3 );
-  for( int dim = 0; dim < m_dim; ++dim )
+  for( int i = 0; i < 3; ++i )
   {
-    m_numElemsTotal[dim] = 0;
-    for( int block = 0; block < m_nElems[dim].size(); ++block )
+    m_numElemsTotal[i] = 0;
+    for( int block = 0; block < m_nElems[i].size(); ++block )
     {
-      m_numElemsTotal[dim] += m_nElems[dim][block];
+      m_numElemsTotal[i] += m_nElems[i][block];
     }
 
-    elemCenterCoords[dim].resize( m_numElemsTotal[dim] );
-    array1d< real64 > elemCenterCoordsLocal( m_numElemsTotal[dim] );
-    for( integer k = 0; k < m_numElemsTotal[dim]; ++k )
+    elemCenterCoords[i].resize( m_numElemsTotal[i] );
+    array1d< real64 > elemCenterCoordsLocal( m_numElemsTotal[i] );
+    for( int k = 0; k < m_numElemsTotal[i]; ++k )
     {
-      elemCenterCoordsLocal[k] = m_min[dim] + ( m_max[dim] - m_min[dim] ) * ( k + 0.5 ) / m_numElemsTotal[dim];
+      elemCenterCoordsLocal[k] = m_min[i] + ( m_max[i] - m_min[i] ) * ( k + 0.5 ) / m_numElemsTotal[i];
     }
     MpiWrapper::allReduce( elemCenterCoordsLocal.data(),
-                           elemCenterCoords[dim].data(),
-                           m_numElemsTotal[dim],
+                           elemCenterCoords[i].data(),
+                           m_numElemsTotal[i],
                            MPI_MAX,
                            MPI_COMM_GEOSX );
   }
 
   // Find starting/ending index
   // Get the first and last indices in this partition each direction
-  integer firstElemIndexInPartition[3] = { -1, -1, -1 };
-  integer lastElemIndexInPartition[3] = { -2, -2, -2 };
+  int firstElemIndexInPartition[3] = { -1, -1, -1 };
+  int lastElemIndexInPartition[3] = { -2, -2, -2 };
 
-  for( int dim = 0; dim < m_dim; ++dim )
+  for( int i = 0; i < 3; ++i )
   {
     //    firstElemIndexInPartition[i] = -1;
     //    lastElemIndexInPartition[i] = -2;
-    for( int k = 0; k < m_numElemsTotal[dim]; ++k )
+    for( int k = 0; k < m_numElemsTotal[i]; ++k )
     {
-      if( partition.isCoordInPartition( elemCenterCoords[dim][k], dim ) )
+      if( partition.isCoordInPartition( elemCenterCoords[i][k], i ) )
       {
-        firstElemIndexInPartition[dim] = k;
+        firstElemIndexInPartition[i] = k;
         break;
       }
     }
 
-    if( firstElemIndexInPartition[dim] > -1 )
+    if( firstElemIndexInPartition[i] > -1 )
     {
-      for( int k = firstElemIndexInPartition[dim]; k < m_numElemsTotal[dim]; ++k )
+      for( int k = firstElemIndexInPartition[i]; k < m_numElemsTotal[i]; ++k )
       {
-        if( partition.isCoordInPartition( elemCenterCoords[dim][k], dim ) )
+        if( partition.isCoordInPartition( elemCenterCoords[i][k], i ) )
         {
-          lastElemIndexInPartition[dim] = k;
+          lastElemIndexInPartition[i] = k;
         }
       }
     }
@@ -655,28 +655,28 @@ void InternalMeshGenerator::generateMesh( DomainPartition & domain )
   array1d< integer > firstElemIndexForBlockInPartition[3];
   array1d< integer > lastElemIndexForBlockInPartition[3];
 
-  for( int dim = 0; dim < 3; ++dim )
+  for( int dir = 0; dir < 3; ++dir )
   {
-    firstElemIndexForBlockInPartition[dim] = m_firstElemIndexForBlock[dim];
-    lastElemIndexForBlockInPartition[dim] = m_lastElemIndexForBlock[dim];
+    firstElemIndexForBlockInPartition[dir] = m_firstElemIndexForBlock[dir];
+    lastElemIndexForBlockInPartition[dir] = m_lastElemIndexForBlock[dir];
 
-    for( integer block = 0; block < m_nElems[dim].size(); ++block )
+    for( int block = 0; block < m_nElems[dir].size(); ++block )
     {
-      if( firstElemIndexForBlockInPartition[dim][block] > lastElemIndexInPartition[dim] ||
-          lastElemIndexForBlockInPartition[dim][block] < firstElemIndexInPartition[dim] )
+      if( firstElemIndexForBlockInPartition[dir][block] > lastElemIndexInPartition[dir] ||
+          lastElemIndexForBlockInPartition[dir][block] < firstElemIndexInPartition[dir] )
       {
-        firstElemIndexForBlockInPartition[dim][block] = -1;
-        lastElemIndexForBlockInPartition[dim][block] = -2;
+        firstElemIndexForBlockInPartition[dir][block] = -1;
+        lastElemIndexForBlockInPartition[dir][block] = -2;
       }
       else
       {
-        if( firstElemIndexForBlockInPartition[dim][block] < firstElemIndexInPartition[dim] )
+        if( firstElemIndexForBlockInPartition[dir][block] < firstElemIndexInPartition[dir] )
         {
-          firstElemIndexForBlockInPartition[dim][block] = firstElemIndexInPartition[dim];
+          firstElemIndexForBlockInPartition[dir][block] = firstElemIndexInPartition[dir];
         }
-        if( lastElemIndexForBlockInPartition[dim][block] > lastElemIndexInPartition[dim] )
+        if( lastElemIndexForBlockInPartition[dir][block] > lastElemIndexInPartition[dir] )
         {
-          lastElemIndexForBlockInPartition[dim][block] = lastElemIndexInPartition[dim];
+          lastElemIndexForBlockInPartition[dir][block] = lastElemIndexInPartition[dir];
         }
       }
     }
@@ -684,11 +684,11 @@ void InternalMeshGenerator::generateMesh( DomainPartition & domain )
 
   // TODO This needs to be rewritten for dimensions lower than 3.
   localIndex regionOffset = 0;
-  for( integer iblock = 0; iblock < m_nElems[0].size(); ++iblock )
+  for( int iblock = 0; iblock < m_nElems[0].size(); ++iblock )
   {
-    for( integer jblock = 0; jblock < m_nElems[1].size(); ++jblock )
+    for( int jblock = 0; jblock < m_nElems[1].size(); ++jblock )
     {
-      for( integer kblock = 0; kblock < m_nElems[2].size(); ++kblock, ++regionOffset )
+      for( int kblock = 0; kblock < m_nElems[2].size(); ++kblock, ++regionOffset )
       {
         numElemsInRegions[ m_regionNames[ regionOffset ] ] = 0;
         elemTypeInRegions[ m_regionNames[ regionOffset ] ] = ElementType::Quadrilateral;
@@ -699,13 +699,13 @@ void InternalMeshGenerator::generateMesh( DomainPartition & domain )
   regionOffset = 0;
   {
     localIndex iR = 0;
-    for( integer iblock = 0; iblock < m_nElems[0].size(); ++iblock )
+    for( int iblock = 0; iblock < m_nElems[0].size(); ++iblock )
     {
-      for( integer jblock = 0; jblock < m_nElems[1].size(); ++jblock )
+      for( int jblock = 0; jblock < m_nElems[1].size(); ++jblock )
       {
-        for( integer kblock = 0; kblock < m_nElems[2].size(); ++kblock, ++regionOffset, ++iR )
+        for( int kblock = 0; kblock < m_nElems[2].size(); ++kblock, ++regionOffset, ++iR )
         {
-          integer numElemsInRegion = 1;
+          int numElemsInRegion = 1;
           numElemsInRegion *= lastElemIndexForBlockInPartition[0][iblock] - firstElemIndexForBlockInPartition[0][iblock] + 1;
 
           if( m_dim > 1 )
@@ -725,13 +725,15 @@ void InternalMeshGenerator::generateMesh( DomainPartition & domain )
     }
   }
 
+  localIndex numNodes = 1;
   integer numNodesInDir[3] = { 1, 1, 1 };
-  for( int dim = 0; dim < m_dim; ++dim )
+
+  for( int i = 0; i < m_dim; ++i )
   {
-    numNodesInDir[dim] = lastElemIndexInPartition[dim] - firstElemIndexInPartition[dim] + 2;
+    numNodesInDir[i] = lastElemIndexInPartition[i] - firstElemIndexInPartition[i] + 2;
   }
   reduceNumNodesForPeriodicBoundary( partition, numNodesInDir );
-  localIndex const numNodes = localIndex( numNodesInDir[0] ) * numNodesInDir[1] * numNodesInDir[2];
+  numNodes = numNodesInDir[0] * numNodesInDir[1] * numNodesInDir[2];
 
   cellBlockManager.setNumNodes( numNodes );
 
@@ -741,17 +743,17 @@ void InternalMeshGenerator::generateMesh( DomainPartition & domain )
 
   {
     localIndex localNodeIndex = 0;
-    for( integer k = 0; k < numNodesInDir[2]; ++k )
+    for( int i = 0; i < numNodesInDir[0]; ++i )
     {
-      for( integer j = 0; j < numNodesInDir[1]; ++j )
+      for( int j = 0; j < numNodesInDir[1]; ++j )
       {
-        for( integer i = 0; i < numNodesInDir[0]; ++i )
+        for( int k = 0; k < numNodesInDir[2]; ++k )
         {
-          integer globalIJK[3] = { i, j, k };
+          int globalIJK[3] = { i, j, k };
 
-          for( int dim = 0; dim < m_dim; ++dim )
+          for( int a = 0; a < m_dim; ++a )
           {
-            globalIJK[dim] += firstElemIndexInPartition[dim];
+            globalIJK[a] += firstElemIndexInPartition[a];
           }
 
           getNodePosition( globalIJK, m_trianglePattern, X[localNodeIndex] );
@@ -827,13 +829,14 @@ void InternalMeshGenerator::generateMesh( DomainPartition & domain )
       {
         numNodesInDir[i] = lastElemIndexInPartition[i] - firstElemIndexInPartition[i] + 2;
       }
+      numNodes = numNodesInDir[0] * numNodesInDir[1] * numNodesInDir[2];
     }
 
-    for( integer iblock = 0; iblock < m_nElems[0].size(); ++iblock )
+    for( int iblock = 0; iblock < m_nElems[0].size(); ++iblock )
     {
-      for( integer jblock = 0; jblock < m_nElems[1].size(); ++jblock )
+      for( int jblock = 0; jblock < m_nElems[1].size(); ++jblock )
       {
-        for( integer kblock = 0; kblock < m_nElems[2].size(); ++kblock, ++regionOffset, ++iR )
+        for( int kblock = 0; kblock < m_nElems[2].size(); ++kblock, ++regionOffset, ++iR )
         {
           ElementType const elementType = EnumStrings< ElementType >::fromString( m_elementType[iR] );
 
@@ -847,25 +850,25 @@ void InternalMeshGenerator::generateMesh( DomainPartition & domain )
           cellBlock.addProperty< fields::StructuredIndex::type >( fields::StructuredIndex::key() ).resizeDimension< 1 >( m_dim );
           auto const cartIndex = cellBlock.getReference< fields::StructuredIndex::type >( fields::StructuredIndex::key() ).toView();
 
-          integer numElemsInDirForBlock[3] =
+          int numElemsInDirForBlock[3] =
           { lastElemIndexForBlockInPartition[0][iblock] - firstElemIndexForBlockInPartition[0][iblock] + 1,
             lastElemIndexForBlockInPartition[1][jblock] - firstElemIndexForBlockInPartition[1][jblock] + 1,
             lastElemIndexForBlockInPartition[2][kblock] - firstElemIndexForBlockInPartition[2][kblock] + 1 };
 
-          for( integer k = 0; k < numElemsInDirForBlock[2]; ++k )
+          for( int i = 0; i < numElemsInDirForBlock[0]; ++i )
           {
-            for( integer j = 0; j < numElemsInDirForBlock[1]; ++j )
+            for( int j = 0; j < numElemsInDirForBlock[1]; ++j )
             {
-              for( integer i = 0; i < numElemsInDirForBlock[0]; ++i )
+              for( int k = 0; k < numElemsInDirForBlock[2]; ++k )
               {
-                integer globalIJK[3] =
+                int globalIJK[3] =
                 { i + firstElemIndexForBlockInPartition[0][iblock],
                   j + firstElemIndexForBlockInPartition[1][jblock],
                   k + firstElemIndexForBlockInPartition[2][kblock] };
 
-                localIndex const firstNodeIndex = ( globalIJK[0] - firstElemIndexInPartition[0] )
-                                                  + numNodesInDir[0] * ( globalIJK[1] - firstElemIndexInPartition[1] )
-                                                  + numNodesInDir[0] * numNodesInDir[1] * ( globalIJK[2] - firstElemIndexInPartition[2] );
+                const localIndex firstNodeIndex = numNodesInDir[1] * numNodesInDir[2] * ( globalIJK[0] - firstElemIndexInPartition[0] )
+                                                  + numNodesInDir[2] * ( globalIJK[1] - firstElemIndexInPartition[1] )
+                                                  + ( globalIJK[2] - firstElemIndexInPartition[2] );
                 localIndex nodeOfBox[8];
 
                 if( elementType == ElementType::Quadrilateral || elementType == ElementType::Triangle )
@@ -877,17 +880,15 @@ void InternalMeshGenerator::generateMesh( DomainPartition & domain )
                 }
                 else
                 {
-                  localIndex const stride[3] = { 1, numNodesInDir[0], numNodesInDir[0] * numNodesInDir[1] };
-
                   nodeOfBox[0] = firstNodeIndex;
-                  nodeOfBox[1] = nodeOfBox[0] + stride[0];
-                  nodeOfBox[2] = nodeOfBox[1] + stride[1];
-                  nodeOfBox[3] = nodeOfBox[0] + stride[1];
+                  nodeOfBox[1] = numNodesInDir[1] * numNodesInDir[2] + firstNodeIndex;
+                  nodeOfBox[2] = numNodesInDir[1] * numNodesInDir[2] + numNodesInDir[2] + firstNodeIndex;
+                  nodeOfBox[3] = numNodesInDir[2] + firstNodeIndex;
 
-                  nodeOfBox[4] = nodeOfBox[0] + stride[2];
-                  nodeOfBox[5] = nodeOfBox[1] + stride[2];
-                  nodeOfBox[6] = nodeOfBox[2] + stride[2];
-                  nodeOfBox[7] = nodeOfBox[3] + stride[2];
+                  nodeOfBox[4] = firstNodeIndex + 1;
+                  nodeOfBox[5] = numNodesInDir[1] * numNodesInDir[2] + firstNodeIndex + 1;
+                  nodeOfBox[6] = numNodesInDir[1] * numNodesInDir[2] + numNodesInDir[2] + firstNodeIndex + 1;
+                  nodeOfBox[7] = numNodesInDir[2] + firstNodeIndex + 1;
 
                   //               7___________________ 6
                   //               /                   /|
