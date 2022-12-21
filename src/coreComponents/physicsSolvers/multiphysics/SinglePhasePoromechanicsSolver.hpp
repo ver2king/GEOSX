@@ -122,6 +122,7 @@ protected:
   struct viewKeyStruct : SolverBase::viewKeyStruct
   {
     constexpr static char const * porousMaterialNamesString() { return "porousMaterialNames"; }
+    constexpr static char const * isThermalString() { return "isThermal"; }
   };
 
   virtual void initializePostInitialConditionsPreSubGroups() override;
@@ -142,6 +143,9 @@ private:
                          CRSMatrixView< real64, globalIndex const > const & localMatrix,
                          arrayView1d< real64 > const & localRhs,
                          PARAMS && ... params );
+
+  /// flag to determine whether or not this is a thermal simulation
+  integer m_isThermal;
 
 };
 

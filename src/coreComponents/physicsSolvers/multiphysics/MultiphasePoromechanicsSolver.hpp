@@ -144,6 +144,8 @@ protected:
 
   virtual void initializePreSubGroups() override;
 
+  virtual void initializePostInitialConditionsPreSubGroups() override;
+
 private:
 
   template< typename CONSTITUTIVE_BASE,
@@ -156,7 +158,6 @@ private:
                          CRSMatrixView< real64, globalIndex const > const & localMatrix,
                          arrayView1d< real64 > const & localRhs,
                          PARAMS && ... params );
-
 
   /// Type of stabilization used in the simulation
   StabilizationType m_stabilizationType;

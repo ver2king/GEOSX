@@ -294,6 +294,23 @@ void MultiphasePoromechanicsSolver::initializePreSubGroups()
   } );
 }
 
+void MultiphasePoromechanicsSolver::initializePostInitialConditionsPreSubGroups()
+{
+  SolverBase::initializePostInitialConditionsPreSubGroups();
+
+  integer const isFlowThermal = flowSolver()->getReference< integer >( FlowSolverBase::viewKeyStruct::isThermalString() );
+  GEOSX_THROW_IF( m_isThermal && !isFlowThermal,
+                  GEOSX_FMT( "{} {}: The flow solver named {} must be thermal if the poromechanics solver is thermal",
+                             catalogName(), getName(), flowSolver()->getName() ),
+                  InputError );
+
+  if( m_isThermal )
+  {
+    m_linearSolverParameters.get().mgr.strategy = LinearSolverParameters::MGR::StrategyType::thermalMultiphasePoromechanics;
+  }
+}
+
+
 void MultiphasePoromechanicsSolver::updateStabilizationParameters( DomainPartition & domain ) const
 {
   // Step 1: we loop over the regions where stabilization is active and collect their name
