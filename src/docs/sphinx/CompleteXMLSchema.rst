@@ -554,6 +554,13 @@ Element: MultiphasePoromechanics
 .. include:: ../../coreComponents/schema/docs/MultiphasePoromechanics.rst
 
 
+.. _XML_MultiphasePoromechanicsInitialization:
+
+Element: MultiphasePoromechanicsInitialization
+==============================================
+.. include:: ../../coreComponents/schema/docs/MultiphasePoromechanicsInitialization.rst
+
+
 .. _XML_MultiphasePoromechanicsReservoir:
 
 Element: MultiphasePoromechanicsReservoir
@@ -853,6 +860,13 @@ Element: SinglePhasePoromechanics
 Element: SinglePhasePoromechanicsEmbeddedFractures
 ==================================================
 .. include:: ../../coreComponents/schema/docs/SinglePhasePoromechanicsEmbeddedFractures.rst
+
+
+.. _XML_SinglePhasePoromechanicsInitialization:
+
+Element: SinglePhasePoromechanicsInitialization
+===============================================
+.. include:: ../../coreComponents/schema/docs/SinglePhasePoromechanicsInitialization.rst
 
 
 .. _XML_SinglePhasePoromechanicsReservoir:
@@ -1692,6 +1706,13 @@ Datastructure: MultiphasePoromechanics
 .. include:: ../../coreComponents/schema/docs/MultiphasePoromechanics_other.rst
 
 
+.. _DATASTRUCTURE_MultiphasePoromechanicsInitialization:
+
+Datastructure: MultiphasePoromechanicsInitialization
+====================================================
+.. include:: ../../coreComponents/schema/docs/MultiphasePoromechanicsInitialization_other.rst
+
+
 .. _DATASTRUCTURE_MultiphasePoromechanicsReservoir:
 
 Datastructure: MultiphasePoromechanicsReservoir
@@ -1991,6 +2012,13 @@ Datastructure: SinglePhasePoromechanics
 Datastructure: SinglePhasePoromechanicsEmbeddedFractures
 ========================================================
 .. include:: ../../coreComponents/schema/docs/SinglePhasePoromechanicsEmbeddedFractures_other.rst
+
+
+.. _DATASTRUCTURE_SinglePhasePoromechanicsInitialization:
+
+Datastructure: SinglePhasePoromechanicsInitialization
+=====================================================
+.. include:: ../../coreComponents/schema/docs/SinglePhasePoromechanicsInitialization_other.rst
 
 
 .. _DATASTRUCTURE_SinglePhasePoromechanicsReservoir:

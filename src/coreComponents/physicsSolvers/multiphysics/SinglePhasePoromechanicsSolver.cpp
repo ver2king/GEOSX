@@ -47,6 +47,11 @@ SinglePhasePoromechanicsSolver::SinglePhasePoromechanicsSolver( const string & n
     setInputFlag( InputFlags::OPTIONAL ).
     setDescription( "Flag indicating whether the problem is thermal or not." );
 
+  this->registerWrapper( viewKeyStruct::performStressInitializationString(), &m_performStressInitialization ).
+    setApplyDefaultValue( false ).
+    setInputFlag( InputFlags::FALSE ).
+    setDescription( "Flag to indicate that the solver is going to perform stress initialization" );
+
   m_linearSolverParameters.get().mgr.strategy = LinearSolverParameters::MGR::StrategyType::singlePhasePoromechanics;
   m_linearSolverParameters.get().mgr.separateComponents = true;
   m_linearSolverParameters.get().mgr.displacementFieldName = solidMechanics::totalDisplacement::key();
@@ -157,6 +162,7 @@ real64 SinglePhasePoromechanicsSolver::solverStep( real64 const & time_n,
 {
   real64 dt_return = dt;
 
+  // setup monolithic coupled system
   setupSystem( domain,
                m_dofManager,
                m_localMatrix,
@@ -245,6 +251,9 @@ void SinglePhasePoromechanicsSolver::assembleSystem( real64 const time_n,
 
   solidMechanicsSolver()->getMaxForce() = LvArray::math::max( mechanicsMaxForce, poromechanicsMaxForce );
 
+
+  // tell the flow solver that this is a stress initialization step
+  flowSolver()->keepFlowVariablesConstantDuringStep( m_performStressInitialization );
 
   // step 3: compute the fluxes (face-based contributions)
 
