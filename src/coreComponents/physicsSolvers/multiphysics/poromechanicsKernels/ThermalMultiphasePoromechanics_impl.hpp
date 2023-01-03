@@ -220,7 +220,7 @@ computeBodyForce( localIndex const k,
 
     // Step 3: finally, get the body force
 
-    LvArray::tensorOps::scaledCopy< 3 >( stack.dBodyForce_dPressure, m_gravityVector, dMixtureDens_dTemperature );
+    LvArray::tensorOps::scaledCopy< 3 >( stack.dBodyForce_dTemperature, m_gravityVector, dMixtureDens_dTemperature );
 
   } );
 }
@@ -580,11 +580,11 @@ complete( localIndex const k,
     }
   }
 
-  // Step 2: assemble the derivatives of mass balance residual wrt temperature into the global matrix
-
   localIndex const massDof = LvArray::integerConversion< localIndex >( stack.localPressureDofIndex - m_dofRankOffset );
   if( 0 <= massDof && massDof < m_matrix.numRows() )
   {
+    // Step 2: assemble the derivatives of mass balance residual wrt temperature into the global matrix
+    
     for( localIndex i = 0; i < m_numComponents; ++i )
     {
       m_matrix.template addToRow< serialAtomic >( massDof + i,
@@ -592,14 +592,15 @@ complete( localIndex const k,
                                                   stack.dLocalResidualMass_dTemperature[i],
                                                   1 );
     }
+
+    // Step 3: assemble the derivatives of pore-volume constraint residual wrt temperature into the global matrix
+
+    m_matrix.template addToRow< serialAtomic >( massDof + m_numComponents,
+						&stack.localTemperatureDofIndex,
+						stack.dLocalResidualPoreVolConstraint_dTemperature[0],
+						1 );
   }
 
-  // Step 3: assemble the derivatives of pore-volume constraint residual wrt temperature into the global matrix
-
-  m_matrix.template addToRow< serialAtomic >( massDof + m_numComponents,
-                                              &stack.localTemperatureDofIndex,
-                                              stack.dLocalResidualPoreVolConstraint_dTemperature[0],
-                                              1 );
 
   // Step 4: assemble the energy balance and its derivatives into the global matrix
 

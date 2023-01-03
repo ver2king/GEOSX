@@ -81,7 +81,7 @@ public:
   {
     real64 const biotSkeletonModulusInverse = (m_biotCoefficient[k] - m_referencePorosity[k]) / m_grainBulkModulus;
     real64 const porosityThermalExpansion = 3 * thermalExpansionCoefficient * m_biotCoefficient[k];
-
+    
     real64 const porosity = m_porosity_n[k][q]
                             + m_biotCoefficient[k] * LvArray::tensorOps::symTrace< 3 >( strainIncrement )
                             + biotSkeletonModulusInverse * deltaPressure
