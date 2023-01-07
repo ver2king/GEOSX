@@ -1289,13 +1289,13 @@ public:
             LAUNCH( 4, 2 );
           } );
         }
-        else if( numComps == 5 )
-        {
-          hybridFVMKernels::kernelLaunchSelectorFaceSwitch( subRegion.numFacesPerElement(), [&] ( auto NF )
-          {
-            LAUNCH( 5, 2 );
-          } );
-        }
+        // else if( numComps == 5 )
+        // {
+        //   hybridFVMKernels::kernelLaunchSelectorFaceSwitch( subRegion.numFacesPerElement(), [&] ( auto NF )
+        //   {
+        //     LAUNCH( 5, 2 );
+        //   } );
+        // }
         else
         {
           GEOSX_ERROR( "Unsupported number of components: " << numComps );
@@ -1324,13 +1324,13 @@ public:
             LAUNCH( 4, 3 );
           } );
         }
-        else if( numComps == 5 )
-        {
-          hybridFVMKernels::kernelLaunchSelectorFaceSwitch( subRegion.numFacesPerElement(), [&] ( auto NF )
-          {
-            LAUNCH( 5, 3 );
-          } );
-        }
+        // else if( numComps == 5 )
+        // {
+        //   hybridFVMKernels::kernelLaunchSelectorFaceSwitch( subRegion.numFacesPerElement(), [&] ( auto NF )
+        //   {
+        //     LAUNCH( 5, 3 );
+        //   } );
+        // }
         else
         {
           GEOSX_ERROR( "Unsupported number of components: " << numComps );
