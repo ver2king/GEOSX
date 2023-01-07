@@ -54,10 +54,10 @@ void kernelLaunchSelectorFaceSwitch( T value, LAMBDA && lambda )
     { lambda( std::integral_constant< T, 10 >() ); return;}
     case 11:
     { lambda( std::integral_constant< T, 11 >() ); return;}
-    case 12:
-    { lambda( std::integral_constant< T, 12 >() ); return;}
-    case 13:
-    { lambda( std::integral_constant< T, 13 >() ); return;}
+    // case 12:
+    // { lambda( std::integral_constant< T, 12 >() ); return;}
+    // case 13:
+    // { lambda( std::integral_constant< T, 13 >() ); return;}
     default: GEOSX_ERROR( "Unknown numFacesInElem value: " << value );
   }
 }
